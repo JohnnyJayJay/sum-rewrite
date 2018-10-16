@@ -6,7 +6,7 @@ import bettersum.net.ServerConnection;
 /**
  * This Example represents a simple echo server.
  */
-public class TestServer {
+public class EchoServer {
 
     public static void main(String[] args) {
         Server server;

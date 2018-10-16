@@ -1,2 +1,4 @@
 \.idea/*
 *.iml
+oldsum/*
+src/Test.java

@@ -7,11 +7,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DatabaseResult implements AutoCloseable {
+public class QueryResult implements AutoCloseable {
 
     private ResultSet resultSet;
 
-    public DatabaseResult(ResultSet resultSet) {
+    public QueryResult(ResultSet resultSet) {
         this.resultSet = resultSet;
     }
 
@@ -40,26 +40,6 @@ public class DatabaseResult implements AutoCloseable {
             e.printStackTrace();
         }
         return results;
-    }
-
-    public List<?> getObjects(int column) {
-        return this.getAllEntries(column, Object.class);
-    }
-
-    public List<Integer> getInts(int column) {
-        return this.getAllEntries(column, int.class);
-    }
-
-    public List<Long> getLongs(int column) {
-        return this.getAllEntries(column, long.class);
-    }
-
-    public List<String> getStrings(int column) {
-        return this.getAllEntries(column, String.class);
-    }
-
-    public List<Boolean> getBooleans(int column) {
-        return this.getAllEntries(column, boolean.class);
     }
 
     public <K, V> Map<K, V> getKeyValueMap(int keyColumn, Class<K> keyClazz, int valueColumn, Class<V> valueClazz) {
@@ -117,7 +97,7 @@ public class DatabaseResult implements AutoCloseable {
         try {
             return this.resultSet.next();
         } catch (SQLException e) {
-            System.err.println("Could not move result set");
+            System.err.println("Could not move cursor");
             e.printStackTrace();
         }
         return false;
@@ -127,7 +107,7 @@ public class DatabaseResult implements AutoCloseable {
         try {
             return this.resultSet.first();
         } catch (SQLException e) {
-            System.err.println("Could not move result set");
+            System.err.println("Could not move cursor");
             e.printStackTrace();
         }
         return false;
@@ -178,7 +158,7 @@ public class DatabaseResult implements AutoCloseable {
 
         try {
 
-            this.resultSet.first();
+            this.resultSet.beforeFirst();
             while (this.resultSet.next()) {
                 count++;
             }

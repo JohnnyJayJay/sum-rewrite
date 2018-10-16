@@ -41,8 +41,7 @@ public class Database {
     }
 
     public boolean update(String sql, Object... parameters) {
-        try {
-            PreparedStatement statement = this.connection.prepareStatement(sql);
+        try (PreparedStatement statement = this.connection.prepareStatement(sql)) {
             for (int i = 1; i <= parameters.length; i++) {
                 statement.setObject(i, parameters[i - 1]);
             }
@@ -54,7 +53,7 @@ public class Database {
         return false;
     }
 
-    public DatabaseResult query(String sql, Object... parameters) {
+    public QueryResult query(String sql, Object... parameters) {
         try {
             PreparedStatement statement = this.connection.prepareStatement(sql,
                     ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
@@ -62,7 +61,7 @@ public class Database {
                 statement.setObject(i, parameters[i - 1]);
             }
             ResultSet resultSet = statement.executeQuery();
-            return new DatabaseResult(resultSet);
+            return new QueryResult(resultSet);
         } catch (SQLException e) {
             System.err.println("Could not execute query");
             e.printStackTrace();

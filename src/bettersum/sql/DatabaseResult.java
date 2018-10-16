@@ -133,7 +133,7 @@ public class DatabaseResult implements AutoCloseable {
         return false;
     }
 
-    public boolean toRow(int row) {
+    public boolean move(int row) {
         try {
             this.resultSet.beforeFirst();
             while (this.resultSet.next() && this.resultSet.getRow() < row);
@@ -187,7 +187,7 @@ public class DatabaseResult implements AutoCloseable {
             System.err.println("Could not count rows");
             e.printStackTrace();
         } finally {
-            this.toRow(previousPosition);
+            this.move(previousPosition);
         }
         return count;
     }

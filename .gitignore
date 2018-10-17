@@ -2,3 +2,7 @@
 *.iml
 oldsum/*
 src/Test.java
+
+classes/
+
+META-INF/

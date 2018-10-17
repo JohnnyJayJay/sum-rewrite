@@ -2,6 +2,7 @@ package examples.net;
 
 import bettersum.net.Server;
 import bettersum.net.ServerConnection;
+import bettersum.net.ServerEventAdapter;
 
 /**
  * This Example represents a simple echo server.
@@ -9,18 +10,53 @@ import bettersum.net.ServerConnection;
 public class EchoServer {
 
     public static void main(String[] args) {
-        Server server;
         try {
-            server = new Server(1234);
-            server.setOnStarted(() -> System.out.println(String.format("Server started successfully. IP: %s", server.getIPAddress())));
-            server.setOnClosed(() -> System.out.println("Server was closed."));
-            server.setOnClientConnected(client -> System.out.println(String.format("New client connected: %s", client.getIPAddress())));
-            server.setOnClientConnectionLost((ip, port) -> System.out.println(String.format("Client with the ip `%s:%d` lost the connection.", ip, port)));
-            server.setOnClientDisconnected((ip, port) -> System.out.print(String.format("Client with the ip `%s:%d` disconnected from the server.", ip, port)));
-            server.setOnClientMessageReceived(ServerConnection::send); //Echos the message that was sent to the server
+            Server server = new Server(1234);
+            server.setEventAdapter(new TestServerEventAdapter(server));
             server.start();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    static class TestServerEventAdapter extends ServerEventAdapter {
+
+        final Server server;
+
+        public TestServerEventAdapter(Server server) {
+            this.server = server;
+        }
+
+        @Override
+        public void onStarted() {
+            System.out.println("Server started successully.");
+        }
+
+        @Override
+        public void onClosed() {
+            System.out.println("Stopped server.");
+        }
+
+        @Override
+        public void onClientConnected(ServerConnection serverConnection) {
+            System.out.printf("Client Connected: %s:%d\n", serverConnection.getIPAddress(), serverConnection.getPort());
+            serverConnection.send("Hi");
+        }
+
+        @Override
+        public void onClientDisconnected(String ip, int port) {
+            System.out.printf("Client disconnected: %s:%d\n", ip, port);
+        }
+
+        @Override
+        public void onClientConnectionLost(String ip, int port) {
+            System.out.printf("Client lost connection: %s:%d\n", ip, port);
+        }
+
+        @Override
+        public void onClientMessageReceived(ServerConnection serverConnection, String message) {
+            System.out.printf("Client received message: [%s:%d] %s\n", serverConnection.getIPAddress(), serverConnection.getPort(), message);
+            serverConnection.send(message); //Echos message
         }
     }
 }

@@ -6,8 +6,7 @@ import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -20,51 +19,51 @@ public class Server implements Runnable {
     private final ServerSocket serverSocket;
     private final ExecutorService executorService;
     private final List<ServerConnection> serverConnections;
-    private boolean running;
-
-    //Callbacks
-    private Runnable onStarted;
-    private Runnable onClosed;
-    private Consumer<ServerConnection> onClientConnected;
-    private BiConsumer<String, Integer> onClientConnectionLost;
-    private BiConsumer<String, Integer> onClientDisconnected;
-    private BiConsumer<ServerConnection, String> onClientMessageReceived;
+    private final AtomicBoolean running;
+    private ServerEventAdapter serverEventAdapter;
 
     public Server(int port) throws IOException {
+        this.running = new AtomicBoolean();
         this.serverConnections = new LinkedList<>();
         this.executorService = Executors.newCachedThreadPool();
         this.serverSocket = new ServerSocket(port);
     }
 
     public synchronized void start() {
-        if (running)
+        if (running.get())
             throw new IllegalStateException("The server is already running and cannot be started twice.");
-        running = true;
+        running.set(true);
         executorService.execute(this);
     }
 
     public synchronized void stop() throws Exception {
-        if (!running)
+        if (!running.get())
             throw new IllegalStateException("The server is already stopped.");
-        running = false;
+        running.set(true);
         serverSocket.close();
         executorService.shutdown();
-        onClosed.run();
+        if(serverEventAdapter != null) serverEventAdapter.onClosed();
     }
 
     @Override
     public void run() {
-        onStarted.run();
-        while (running) {
+        if (serverEventAdapter != null) serverEventAdapter.onStarted();
+        while (running.get()) {
             try {
                 Socket socket = serverSocket.accept();
-                ServerConnection serverConnection = new ServerConnection(this, socket, (c, s) -> onClientMessageReceived.accept(c, s), c -> onClientConnectionLost.accept(c.getIPAddress(), c.getPort()), c -> {
+                ServerConnection serverConnection = new ServerConnection(this, socket, (c, s) -> {
+                    if (serverEventAdapter != null) serverEventAdapter.onClientMessageReceived(c, s);
+                }, c -> {
+                    if (serverEventAdapter != null)
+                        serverEventAdapter.onClientConnectionLost(c.getIPAddress(), c.getPort());
+                }, c -> {
                     serverConnections.remove(c);
-                    onClientDisconnected.accept(c.getIPAddress(), c.getPort());
+                    if (serverEventAdapter != null)
+                        serverEventAdapter.onClientDisconnected(c.getIPAddress(), c.getPort());
                 });
                 serverConnections.add(serverConnection);
                 executorService.execute(serverConnection);
-                onClientConnected.accept(serverConnection);
+                if (serverEventAdapter != null) serverEventAdapter.onClientConnected(serverConnection);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -103,28 +102,8 @@ public class Server implements Runnable {
         return res.get(0);
     }
 
-    public void setOnStarted(Runnable onStarted) {
-        this.onStarted = onStarted;
-    }
-
-    public void setOnClosed(Runnable onClosed) {
-        this.onClosed = onClosed;
-    }
-
-    public void setOnClientConnected(Consumer<ServerConnection> onClientConnected) {
-        this.onClientConnected = onClientConnected;
-    }
-
-    public void setOnClientConnectionLost(BiConsumer<String, Integer> onClientConnectionLost) {
-        this.onClientConnectionLost = onClientConnectionLost;
-    }
-
-    public void setOnClientDisconnected(BiConsumer<String, Integer> onClientDisconnected) {
-        this.onClientDisconnected = onClientDisconnected;
-    }
-
-    public void setOnClientMessageReceived(BiConsumer<ServerConnection, String> onClientMessageReceived) {
-        this.onClientMessageReceived = onClientMessageReceived;
+    public void setEventAdapter(ServerEventAdapter serverEventAdapter) {
+        this.serverEventAdapter = serverEventAdapter;
     }
 
     public ServerSocket getServerSocket() {
@@ -148,7 +127,7 @@ public class Server implements Runnable {
     }
 
     public boolean isRunning() {
-        return running;
+        return running.get();
     }
 
     @Override

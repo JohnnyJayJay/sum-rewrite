@@ -1,10 +1,9 @@
 package bettersum.net;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Scanner;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -31,23 +30,22 @@ public class ServerConnection implements Runnable {
         this.onMessage = onMessage;
         this.onClosed = onClosed;
         this.onConnectionLost = onConnectionLost;
-        printWriter = new PrintWriter(socket.getOutputStream());
+        printWriter = new PrintWriter(socket.getOutputStream(), true);
     }
 
     @Override
     public void run() {
-        while (socket.isConnected()) {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-                StringBuilder msg = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null)
-                    msg.append(line).append("\n");
+        while (socket.isConnected() && !socket.isClosed()) {
+            StringBuilder msg = new StringBuilder();
+            try (Scanner scanner = new Scanner(socket.getInputStream())) {
+                while (scanner.hasNextLine())
+                    msg.append(scanner.nextLine());
                 onMessage.accept(this, msg.toString());
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        if(!serverClose)
+        if (!serverClose)
             onConnectionLost.accept(this);
         try {
             close();
@@ -57,7 +55,7 @@ public class ServerConnection implements Runnable {
     }
 
     public void send(String message) {
-        printWriter.println(message);
+        printWriter.println(message + "\n");
         printWriter.flush();
     }
 

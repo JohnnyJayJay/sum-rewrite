@@ -23,7 +23,7 @@ public class Calculator {
     }
 
     public int randomInt(int min, int max) {
-        return random.nextInt(max + 1) + min;
+        return random.nextInt(max - min) + min;
     }
 
     public int modulus(int i) {

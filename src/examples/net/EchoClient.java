@@ -28,8 +28,7 @@ public class EchoClient {
         @Override
         public void onConnected() {
             System.out.println("Connected to Server.");
-            client.send("Ja");
-            client.send("Hi zurück");
+            client.send("Client");
         }
 
         @Override
@@ -44,7 +43,7 @@ public class EchoClient {
 
         @Override
         public void onMessageReceived(String message) {
-            System.out.printf("Received Message: %s}\n", message);
+            System.out.printf("Received Message: %s\n", message);
         }
     }
 }

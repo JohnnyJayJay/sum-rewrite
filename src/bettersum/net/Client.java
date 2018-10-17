@@ -27,7 +27,7 @@ public class Client implements Runnable {
     }
 
     public void connect() throws IOException {
-        if(running.get())
+        if (running.get())
             throw new IllegalStateException("Client is already running");
         running.set(true);
         socket = new Socket(host, port);
@@ -37,26 +37,27 @@ public class Client implements Runnable {
     }
 
     public void send(String message) {
-        if(printWriter == null)
+        if (printWriter == null)
             throw new IllegalStateException("Client was not started yet.");
         printWriter.println(message + "\n");
     }
 
     @Override
     public void run() {
-        if(clientEventAdpater != null) clientEventAdpater.onConnected();
+        if (clientEventAdpater != null) clientEventAdpater.onConnected();
         while (running.get() && socket.isConnected() && !socket.isClosed()) {
-            StringBuilder msg = new StringBuilder();
             try (Scanner scanner = new Scanner(socket.getInputStream())) {
-                while (scanner.hasNextLine())
-                    msg.append(scanner.nextLine());
-                if(clientEventAdpater != null) clientEventAdpater.onMessageReceived(msg.toString());
+                while (scanner.hasNextLine()) {
+                    String msg = scanner.nextLine();
+                    if (!msg.equals(""))
+                        if (clientEventAdpater != null) clientEventAdpater.onMessageReceived(msg);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        if(!closedByServer)
-            if(clientEventAdpater != null) clientEventAdpater.onConnectionLost();
+        if (!closedByServer)
+            if (clientEventAdpater != null) clientEventAdpater.onConnectionLost();
         try {
             close();
         } catch (IOException e) {
@@ -69,7 +70,7 @@ public class Client implements Runnable {
         closedByServer = true;
         printWriter.close();
         socket.close();
-        if(clientEventAdpater != null) clientEventAdpater.onDisconnected();
+        if (clientEventAdpater != null) clientEventAdpater.onDisconnected();
     }
 
     public void setEventAdapter(ClientEventAdpater clientEventAdpater) {

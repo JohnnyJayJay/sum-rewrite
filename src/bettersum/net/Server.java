@@ -98,7 +98,7 @@ public class Server implements Runnable {
     public ServerConnection getConnectionByIpAndPort(String ip, int port) {
         List<ServerConnection> res = serverConnections.stream().filter(serverConnection -> serverConnection.getIPAddress().equals(ip) && serverConnection.getPort() == port).collect(Collectors.toList());
         if (res.size() == 0)
-            throw new NoSuchElementException("There is mo client with that ip and port.");
+            throw new NoSuchElementException("There is no client with that ip and port.");
         return res.get(0);
     }
 

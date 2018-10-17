@@ -29,7 +29,7 @@ public class EchoServer {
 
         @Override
         public void onStarted() {
-            System.out.println("Server started successully.");
+            System.out.println("Server started successfully.");
         }
 
         @Override
@@ -40,7 +40,6 @@ public class EchoServer {
         @Override
         public void onClientConnected(ServerConnection serverConnection) {
             System.out.printf("Client Connected: %s:%d\n", serverConnection.getIPAddress(), serverConnection.getPort());
-            serverConnection.send("Hi");
         }
 
         @Override
@@ -55,7 +54,7 @@ public class EchoServer {
 
         @Override
         public void onClientMessageReceived(ServerConnection serverConnection, String message) {
-            System.out.printf("Client received message: [%s:%d] %s\n", serverConnection.getIPAddress(), serverConnection.getPort(), message);
+            System.out.printf("[%s:%d]: %s\n", serverConnection.getIPAddress(), serverConnection.getPort(), message);
             serverConnection.send(message); //Echos message
         }
     }

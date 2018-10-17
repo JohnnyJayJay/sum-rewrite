@@ -36,11 +36,12 @@ public class ServerConnection implements Runnable {
     @Override
     public void run() {
         while (socket.isConnected() && !socket.isClosed()) {
-            StringBuilder msg = new StringBuilder();
             try (Scanner scanner = new Scanner(socket.getInputStream())) {
-                while (scanner.hasNextLine())
-                    msg.append(scanner.nextLine());
-                onMessage.accept(this, msg.toString());
+                while (scanner.hasNextLine()) {
+                    String msg = scanner.nextLine();
+                    if (!msg.equals(""))
+                        onMessage.accept(this, msg);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -56,7 +57,6 @@ public class ServerConnection implements Runnable {
 
     public void send(String message) {
         printWriter.println(message + "\n");
-        printWriter.flush();
     }
 
     public void close() throws IOException {

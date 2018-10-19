@@ -3,6 +3,12 @@ package bettersum.tools;
 import java.io.Closeable;
 import java.io.Serializable;
 
+/**
+ * A thread that executes a task every X milliseconds
+ * @since 1.0
+ * @author Michael Rittmeister
+ * @see Thread
+ */
 public abstract class Animation extends Thread implements Serializable, Closeable {
 
     private boolean stopped = false;

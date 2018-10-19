@@ -10,7 +10,7 @@ public abstract class Animation extends Thread implements Serializable, Closeabl
 
     /**
      * Constructs a new animation with interval 30 milliseconds
-     * @see Animation#Animation(long)
+     * @see this#Animation(long)
      */
     public Animation() {
         this(30L);

@@ -15,6 +15,7 @@ public class TextTool implements Serializable, Closeable {
 
     /**
      * Constructs a TextTool with the default separator " "
+     * @see this#TextTool(String) 
      */
     public TextTool() {
         this(" ");
@@ -116,7 +117,7 @@ public class TextTool implements Serializable, Closeable {
      * @param from The start of the substring that should be extracted
      * @param to The end of the substring that should be extracted
      * @return The string without the substring
-     * @see TextTool#textWithout(String, String)
+     * @see this#textWithout(String, String)
      */
     public String textWithout(String string, int from, int to) {
         return textWithout(string, string.substring(from, to));
@@ -159,7 +160,7 @@ public class TextTool implements Serializable, Closeable {
 
     /**
      * Just an alias because of IDK
-     * @see TextTool#toLowerCase(String)
+     * @see this#toLowerCase(String)
      */
     public String tolowercase(String string) {
         return toLowerCase(string);
@@ -176,7 +177,7 @@ public class TextTool implements Serializable, Closeable {
 
     /**
      * Just an alias because of IDK
-     * @see TextTool#toUpperCase(String)
+     * @see this#toUpperCase(String)
      */
     public String touppercase(String string) {
         return toUpperCase(string);
@@ -241,7 +242,7 @@ public class TextTool implements Serializable, Closeable {
     }
 
     /**
-     * @see TextTool#isInteger(String)
+     * @see this#isInteger(String)
      */
     public boolean isInteger(char string) {
         return isInteger("" + string);
@@ -274,7 +275,7 @@ public class TextTool implements Serializable, Closeable {
     }
 
     /**
-     * @see TextTool#asInteger(String)
+     * @see this#asInteger(String)
      */
     public int asInteger(char string) {
         return asInteger("" + string);
@@ -304,7 +305,7 @@ public class TextTool implements Serializable, Closeable {
     }
 
     /**
-     * @see TextTool#asLong(String)
+     * @see this#asLong(String)
      */
     public long asLong(char string) {
         return asLong("" + string);
